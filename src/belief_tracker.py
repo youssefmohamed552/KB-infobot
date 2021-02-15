@@ -5,8 +5,9 @@ import torch.nn as nn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class BeliefTracker:
-  def __init__(self, input_dim, hidden_dim):
+  def __init__(self, input_dim, hidden_dim, j_dim):
     self.hidden_dim = hidden_dim
+    self.j_dim = j_dim
     self.gru = nn.GRU(input_dim, hidden_dim).float()
 
   def forward(self, sentence):
@@ -14,7 +15,15 @@ class BeliefTracker:
     for x in sentence:
       embedding = torch.tensor(x).view(1,1,-1)
       output, hidden = self.gru(embedding.float(), hidden.float())
-    return output
+    self.lp = nn.Linear(self.hidden_dim, self.j_dim)
+    self.lp_out = self.lp(output)
+    self.lq = nn.Linear(self.hidden_dim, 1)
+    self.lq_out = self.lq(output)
+    self.soft = nn.Softmax()
+    self.p = self.soft(self.lp_out)
+    self.sig = nn.Sigmoid()
+    self.q = self.sig(self.lq_out)
+    return self.p, self.q
 
   def initHidden(self):
     return torch.zeros(1,1, self.hidden_dim, device=device)
@@ -26,5 +35,6 @@ if __name__ == '__main__':
   hidden_dim = 16
   encoded_statement = [np.random.rand(inp_dim) for _ in range(5)]
   b = BeliefTracker(inp_dim, hidden_dim)
-  out = b.forward(encoded_statement)
-  print(out)
+  p, q = b.forward(encoded_statement)
+  print(p)
+  print(q)

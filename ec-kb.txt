@@ -1,0 +1,4 @@
+movie|actor|release year
+groundhog day|bill murray|1993
+australia|nicole kidman|<empty>
+mad max:fury road|<empty>|2015
