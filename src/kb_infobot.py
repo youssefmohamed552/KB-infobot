@@ -2,6 +2,10 @@ from src.data_map import DataMap
 from src.featured_question import encode_statement
 from src.belief_tracker import BeliefTracker
 from src.soft_kb import SoftKB
+from src.belief_summary import BeliefSummary
+from src.policy_network import PolicyNetwork
+from torch.distributions import Categorical
+import torch
 
 class KB_infoBot:
   def __init__(self):
@@ -11,7 +15,11 @@ class KB_infoBot:
     print('word embeddings parsed in the system')
     self.soft_kb = SoftKB()
     # self.p_num = self.soft_kb.j_dim
-    self.belief_trackers = [BeliefTracker(100, 256, self.soft_kb.j_dim) for _ in range(self.soft_kb.i_dim)]
+    self.M = self.soft_kb.j_dim
+    self.N = self.soft_kb.i_dim
+    self.belief_trackers = [BeliefTracker(100, 256, self.N) for _ in range(self.M)]
+    self.belief_summary = BeliefSummary(self.N, self.M, self.soft_kb.M_sigh)
+    self.policy_network = PolicyNetwork(2*self.M + 1, 256, self.N)
 
 
   def eval(self, statement):
@@ -22,7 +30,18 @@ class KB_infoBot:
     print("pts: {}".format(pts))
     print("qts: {}".format(qts))
     self.soft_kb.show()
-    st = self.soft_kb.get_row_prob(pts, qts)
+    pT = self.soft_kb.get_row_prob(pts, qts)
+    print("pT : {}".format(pT))
+    h_w = self.belief_summary.forward(pT, pts)
+    pT = torch.tensor(pT)
+    h_pT = Categorical(probs=pT).entropy()
+    print("h(w): {}".format(h_w))
+    print("h(pT): {}".format(h_pT))
+    s_t = h_w + qts + [h_pT]
+    s_t = torch.tensor(s_t)
+    print("s_t : {}".format(s_t))
+    s = [s_t]
+    pi = self.policy_network.forward(s)
+    print("pi : {}".format(pi))
 
-    print("state : {}".format(st))
 

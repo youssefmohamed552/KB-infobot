@@ -19,7 +19,7 @@ class BeliefTracker:
     self.lp_out = self.lp(output)
     self.lq = nn.Linear(self.hidden_dim, 1)
     self.lq_out = self.lq(output)
-    self.soft = nn.Softmax()
+    self.soft = nn.Softmax(dim=1)
     self.p = self.soft(self.lp_out)
     self.sig = nn.Sigmoid()
     self.q = self.sig(self.lq_out)
