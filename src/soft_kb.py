@@ -6,7 +6,6 @@ class SoftKB:
     self.init_table()
     self.j_dim = len(self.relations)
     self.i_dim = len(self.heads)
-    self.s = []
  
   def init_table(self):
     self.type = None
@@ -18,7 +17,7 @@ class SoftKB:
       self.type = line[0]
       self.relations = line[1:]
       self.M_sigh = [[] for _ in range(len(self.relations))]
-      print("prior M sigh: {}".format(self.M_sigh))
+      # print("prior M sigh: {}".format(self.M_sigh))
       for i, line in enumerate(fp):
         els = line.strip().split('|')
         self.heads.append(els[0])
@@ -43,19 +42,14 @@ class SoftKB:
   def get_row_prob(self, pts, qts):
     pT = [1.0] * self.i_dim
     pr_G_Ph_0 = [[(1 / self.i_dim)] * self.i_dim] * self.j_dim
-    print("pr(G=i|Ph=0) = {}".format(pr_G_Ph_0))
+    # print("pr(G=i|Ph=0) = {}".format(pr_G_Ph_0))
     for i in range(self.i_dim):
       for j in range(self.j_dim):
-        _m = self.M_sigh[j]
-        # print("______  {}".format(pts))
-        # _pt = pts[i][j]
-        _nv = self.Nv[j]
         pr_G_Ph_1 = (1 / self.i_dim) if i in self.M_sigh[j] else ((pts[j][i] / self.Nv[j]) * (1 - (len(self.M_sigh[j]) / self.i_dim)))
         pr_G = (qts[j] * pr_G_Ph_1) + ((1 - qts[j]) * pr_G_Ph_0[j][i])
-        print("pr(G) = {}".format(pr_G))
+        # print("pr(G) = {}".format(pr_G))
         pT[i] *= pr_G
-        print("pT(i) = {}".format(pT[i]))
-    self.s.append({"pts":pts, "qts":qts, "pT":pT})
+        # print("pT(i) = {}".format(pT[i]))
     return pT
 
     
