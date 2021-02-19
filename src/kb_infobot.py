@@ -1,10 +1,10 @@
-from src.data_map import DataMap
-from src.featured_question import encode_statement
-from src.belief_tracker import BeliefTracker
-from src.soft_kb import SoftKB
-from src.belief_summary import BeliefSummary
-from src.policy_network import PolicyNetwork
-from src.action_selection import ActionSelection
+from src.arch.data_map import DataMap
+from src.arch.featured_question import encode_statement
+from src.arch.belief_tracker import BeliefTracker
+from src.arch.soft_kb import SoftKB
+from src.arch.belief_summary import BeliefSummary
+from src.arch.policy_network import PolicyNetwork
+from src.arch.action_selection import ActionSelection
 from torch.distributions import Categorical
 import torch
 
